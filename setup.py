@@ -1,7 +1,7 @@
 from setuptools import setup
 setup(
     name="ECRScan",
-    version='0.0.1',
+    version='0.1.0',
     packages=['ecrscan'],
     description='ECR scan utility',
     author='Chuck Muckamuck',
