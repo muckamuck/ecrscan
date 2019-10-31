@@ -1,10 +1,17 @@
+import sys
 import logging
 import datetime
+import time
 import boto3
 import json
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
+
+IN_PROGRESS = 'IN_PROGRESS'
+COMPLETE = 'COMPLETE'
+FAILED = 'FAILED'
+
 SEVERITIES = [
     'INFORMATIONAL',
     'LOW',
@@ -64,6 +71,19 @@ def get_results(ecr_client, repository, tag):
                     repositoryName=repository,
                     imageId={'imageTag':  tag}
                 )
+                current_status = response.get('imageScanStatus').get('status', 'FAILED')
+                logger.info('current scan status is %s', current_status)
+                if current_status == FAILED:
+                    logger.error('exiting')
+                    sys.exit(1)
+                elif current_status == IN_PROGRESS:
+                    time.sleep(15)
+                    continue
+                elif current_status == COMPLETE:
+                    logger.debug('move along')
+                else:
+                    logger.error('strange scan status, running away')
+                    sys.exit(1)
             else:
                 response = ecr_client.describe_image_scan_findings(
                     repositoryName=repository,
