@@ -59,6 +59,20 @@ def init_boto3_clients(services, profile=None, region=None):
         return dict()
 
 
+def scan_image(ecr_client, repository, tag):
+    try:
+        response = ecr_client.start_image_scan(
+            repositoryName=repository,
+            imageId={'imageTag':  tag}
+        )
+        logger.info('start_image_scan response: %s', json.dumps(response, indent=2, default=date_converter))
+        return get_results(ecr_client, repository, tag)
+    except Exception as wtf:
+        logger.error(wtf, exc_info=False)
+
+    return False
+
+
 def get_results(ecr_client, repository, tag):
     '''
     Get scan results
