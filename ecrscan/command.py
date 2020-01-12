@@ -35,9 +35,10 @@ def cli():
 @click.option('--tag', '-t', help='ECR repository tag of interest', required=True)
 @click.option('--profile', help='AWS credential config')
 @click.option('--region', help='AWS region')
-def rescan(repository, tag, profile, region):
+@click.option('--ignore-errors', help='Ignore errors, always exit 0', is_flag=True)
+def rescan(repository, tag, profile, region, ignore_errors):
     '''
-    This is the entry-point for the utility (re)scan an existing image.
+    This is an entry-point for the utility (re)scan an existing image.
     '''
     try:
         services = init_boto3_clients(SERVICES, profile, region)
@@ -50,7 +51,11 @@ def rescan(repository, tag, profile, region):
         if scan_image(ecr_client, repository, tag):
             sys.exit(0)
         else:
-            sys.exit(1)
+            if ignore_errors:
+                logger.info('reasons to panic ignored')
+                sys.exit(0)
+            else:
+                sys.exit(1)
     except Exception as wartburg_track_and_field:
         logger.error(wartburg_track_and_field, exc_info=False)
 
@@ -62,9 +67,10 @@ def rescan(repository, tag, profile, region):
 @click.option('--tag', '-t', help='ECR repository tag of interest', required=True)
 @click.option('--profile', help='AWS credential config')
 @click.option('--region', help='AWS region')
-def report(repository, tag, profile, region):
+@click.option('--ignore-errors', help='Ignore errors, always exit 0', is_flag=True)
+def report(repository, tag, profile, region, ignore_errors):
     '''
-    This is the entry-point for the utility report scan results.
+    This is an entry-point for the utility report scan results.
     '''
     try:
         services = init_boto3_clients(SERVICES, profile, region)
@@ -77,7 +83,11 @@ def report(repository, tag, profile, region):
         if get_results(ecr_client, repository, tag):
             sys.exit(0)
         else:
-            sys.exit(1)
+            if ignore_errors:
+                logger.info('reasons to panic ignored')
+                sys.exit(0)
+            else:
+                sys.exit(1)
     except Exception as wartburg_track_and_field:
         logger.error(wartburg_track_and_field, exc_info=False)
 
