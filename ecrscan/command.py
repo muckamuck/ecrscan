@@ -22,7 +22,7 @@ logger.setLevel(logging.INFO)
 
 
 @click.group()
-@click.version_option(version='0.1.1')
+@click.version_option(version='0.2.0')
 def cli():
     '''
     A utility for working with ECR image scan results
