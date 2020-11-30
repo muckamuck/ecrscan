@@ -32,10 +32,11 @@ def cli():
 
 @cli.command()
 @click.option('--repository', '-r', help='ECR repository of interest', required=True)
+@click.option('--registry-id', help='ECR registry ID of interest')
 @click.option('--tag', '-t', help='ECR repository tag of interest', required=True)
 @click.option('--profile', help='AWS credential config')
 @click.option('--region', help='AWS region')
-def rescan(repository, tag, profile, region):
+def rescan(repository, registry_id, tag, profile, region):
     '''
     This is the entry-point for the utility (re)scan an existing image.
     '''
@@ -47,7 +48,7 @@ def rescan(repository, tag, profile, region):
             logger.error('could not get an ECR client')
             sys.exit(1)
 
-        if scan_image(ecr_client, repository, tag):
+        if scan_image(ecr_client, repository, tag, registry_id):
             sys.exit(0)
         else:
             sys.exit(1)
@@ -59,10 +60,11 @@ def rescan(repository, tag, profile, region):
 
 @cli.command()
 @click.option('--repository', '-r', help='ECR repository of interest', required=True)
+@click.option('--registry-id', help='ECR registry ID of interest')
 @click.option('--tag', '-t', help='ECR repository tag of interest', required=True)
 @click.option('--profile', help='AWS credential config')
 @click.option('--region', help='AWS region')
-def report(repository, tag, profile, region):
+def report(repository, registry_id, tag, profile, region):
     '''
     This is the entry-point for the utility report scan results.
     '''
@@ -74,7 +76,7 @@ def report(repository, tag, profile, region):
             logger.error('could not get an ECR client')
             sys.exit(1)
 
-        if get_results(ecr_client, repository, tag):
+        if get_results(ecr_client, repository, tag, registry_id):
             sys.exit(0)
         else:
             sys.exit(1)
