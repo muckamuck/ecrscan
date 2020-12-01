@@ -73,7 +73,7 @@ def scan_image(ecr_client, repository, tag, registry_id):
                 imageId={'imageTag':  tag}
             )
         logger.info('start_image_scan response: %s', json.dumps(response, indent=2, default=date_converter))
-        return get_results(ecr_client, repository, tag, registryId)
+        return get_results(ecr_client, repository, tag, registry_id)
     except Exception as wtf:
         logger.error(wtf, exc_info=False)
 
