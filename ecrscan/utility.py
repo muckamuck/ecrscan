@@ -59,21 +59,28 @@ def init_boto3_clients(services, profile=None, region=None):
         return dict()
 
 
-def scan_image(ecr_client, repository, tag):
+def scan_image(ecr_client, repository, tag, registry_id):
     try:
-        response = ecr_client.start_image_scan(
-            repositoryName=repository,
-            imageId={'imageTag':  tag}
-        )
+        if registry_id:
+            response = ecr_client.start_image_scan(
+                registryId=registry_id,
+                repositoryName=repository,
+                imageId={'imageTag':  tag}
+            )
+        else:
+            response = ecr_client.start_image_scan(
+                repositoryName=repository,
+                imageId={'imageTag':  tag}
+            )
         logger.info('start_image_scan response: %s', json.dumps(response, indent=2, default=date_converter))
-        return get_results(ecr_client, repository, tag)
+        return get_results(ecr_client, repository, tag, registry_id)
     except Exception as wtf:
         logger.error(wtf, exc_info=False)
 
     return False
 
 
-def get_results(ecr_client, repository, tag):
+def get_results(ecr_client, repository, tag, registry_id):
     '''
     Get scan results
     '''
@@ -81,10 +88,17 @@ def get_results(ecr_client, repository, tag):
     try:
         while next_token:
             if next_token == '__first__':
-                response = ecr_client.describe_image_scan_findings(
-                    repositoryName=repository,
-                    imageId={'imageTag':  tag}
-                )
+                if registry_id:
+                    response = ecr_client.describe_image_scan_findings(
+                        registryId=registry_id,
+                        repositoryName=repository,
+                        imageId={'imageTag':  tag}
+                    )
+                else:
+                    response = ecr_client.describe_image_scan_findings(
+                        repositoryName=repository,
+                        imageId={'imageTag':  tag}
+                    )
                 current_status = response.get('imageScanStatus').get('status', 'FAILED')
                 logger.info('current scan status is %s', current_status)
                 if current_status == FAILED:
@@ -99,11 +113,19 @@ def get_results(ecr_client, repository, tag):
                     logger.error('strange scan status, running away')
                     sys.exit(1)
             else:
-                response = ecr_client.describe_image_scan_findings(
-                    repositoryName=repository,
-                    imageId={'imageTag':  tag},
-                    nextToken=next_token
-                )
+                if registry_id:
+                    response = ecr_client.describe_image_scan_findings(
+                        registryId=registry_id,
+                        repositoryName=repository,
+                        imageId={'imageTag':  tag},
+                        nextToken=next_token
+                    )
+                else:
+                    response = ecr_client.describe_image_scan_findings(
+                        repositoryName=repository,
+                        imageId={'imageTag':  tag},
+                        nextToken=next_token
+                    )
 
             next_token = response.get('nextToken', None)
 

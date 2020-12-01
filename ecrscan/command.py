@@ -22,7 +22,7 @@ logger.setLevel(logging.INFO)
 
 
 @click.group()
-@click.version_option(version='0.2.0')
+@click.version_option(version='0.2.1')
 def cli():
     '''
     A utility for working with ECR image scan results
@@ -32,11 +32,12 @@ def cli():
 
 @cli.command()
 @click.option('--repository', '-r', help='ECR repository of interest', required=True)
+@click.option('--registry-id', help='ECR registry ID of interest')
 @click.option('--tag', '-t', help='ECR repository tag of interest', required=True)
 @click.option('--profile', help='AWS credential config')
 @click.option('--region', help='AWS region')
 @click.option('--ignore-errors', help='Ignore errors, always exit 0', is_flag=True)
-def rescan(repository, tag, profile, region, ignore_errors):
+def rescan(repository, tag, registry_id, profile, region, ignore_errors):
     '''
     This is an entry-point for the utility (re)scan an existing image.
     '''
@@ -48,7 +49,7 @@ def rescan(repository, tag, profile, region, ignore_errors):
             logger.error('could not get an ECR client')
             sys.exit(1)
 
-        if scan_image(ecr_client, repository, tag):
+        if scan_image(ecr_client, repository, tag, registry_id):
             sys.exit(0)
         else:
             if ignore_errors:
@@ -64,11 +65,12 @@ def rescan(repository, tag, profile, region, ignore_errors):
 
 @cli.command()
 @click.option('--repository', '-r', help='ECR repository of interest', required=True)
+@click.option('--registry-id', help='ECR registry ID of interest')
 @click.option('--tag', '-t', help='ECR repository tag of interest', required=True)
 @click.option('--profile', help='AWS credential config')
 @click.option('--region', help='AWS region')
 @click.option('--ignore-errors', help='Ignore errors, always exit 0', is_flag=True)
-def report(repository, tag, profile, region, ignore_errors):
+def report(repository, tag, registry_id, profile, region, ignore_errors):
     '''
     This is an entry-point for the utility report scan results.
     '''
@@ -80,7 +82,7 @@ def report(repository, tag, profile, region, ignore_errors):
             logger.error('could not get an ECR client')
             sys.exit(1)
 
-        if get_results(ecr_client, repository, tag):
+        if get_results(ecr_client, repository, tag, registry_id):
             sys.exit(0)
         else:
             if ignore_errors:
