@@ -113,11 +113,19 @@ def get_results(ecr_client, repository, tag, registry_id):
                     logger.error('strange scan status, running away')
                     sys.exit(1)
             else:
-                response = ecr_client.describe_image_scan_findings(
-                    repositoryName=repository,
-                    imageId={'imageTag':  tag},
-                    nextToken=next_token
-                )
+                if registry_id:
+                    response = ecr_client.describe_image_scan_findings(
+                        registryId=registry_id,
+                        repositoryName=repository,
+                        imageId={'imageTag':  tag},
+                        nextToken=next_token
+                    )
+                else:
+                    response = ecr_client.describe_image_scan_findings(
+                        repositoryName=repository,
+                        imageId={'imageTag':  tag},
+                        nextToken=next_token
+                    )
 
             next_token = response.get('nextToken', None)
 
